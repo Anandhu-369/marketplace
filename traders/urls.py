@@ -1,0 +1,6 @@
+from django.urls import path
+from traders.views import *
+urlpatterns = [
+    path('signup',SignupView.as_view(),name="signup"),
+    path('homepage',HomePageView.as_view(),name="homepage")
+]
