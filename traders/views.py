@@ -5,6 +5,7 @@ from django.views import View
 from django.urls import reverse_lazy,reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
+from traders.models import *
 # Create your views here.
 
 class SignupView(CreateView):
@@ -32,5 +33,7 @@ class SigninView(FormView):
                     return redirect('signin')
             return render(request,"signin.html",{"form":form_data})
 
-class HomePageView(TemplateView):
-    template_name="home.html"
+class HomePageView(View):
+    def get(self,request):
+        form_data=Product.objects.all()
+        return render(request,"homepage.html",{"form_data":form_data})

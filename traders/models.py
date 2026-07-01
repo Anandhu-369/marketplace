@@ -20,7 +20,7 @@ class Product(models.Model):
     title=models.CharField(max_length=100)
     description=models.CharField(max_length=500)
     price=models.DecimalField(max_digits=9,decimal_places=2,null=True,blank=True)
-    starting_bid=models.DecimalField(max_digits=9,decimal_places=2,null=True)
+    starting_bid=models.DecimalField(max_digits=9,decimal_places=2,null=True,blank=True)
     category=models.ForeignKey(Category,on_delete=models.CASCADE,related_name="product_category")
     is_negotiatable=models.BooleanField(default=False)
     is_purchased=models.BooleanField(default=False)
@@ -28,7 +28,7 @@ class Product(models.Model):
     auction_end=models.DateTimeField(null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
-    current_bid=models.DecimalField(max_digits=9,decimal_places=2,null=True)
+    current_bid=models.DecimalField(max_digits=9,decimal_places=2,null=True,blank=True)
 
     class Meta:
         ordering=["-created_at"]
