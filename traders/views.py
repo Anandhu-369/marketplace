@@ -36,4 +36,9 @@ class SigninView(FormView):
 class HomePageView(View):
     def get(self,request):
         form_data=Product.objects.all()
-        return render(request,"homepage.html",{"form_data":form_data})
+        return render(request,"home.html",{"form_data":form_data})
+class ProductDetailsView(View):
+    def get(self,request,**kwargs):
+        pid=kwargs.get('pid')
+        form_data=Product.objects.get(id=pid)
+        return render(request,"product_details.html",{"form_data":form_data})
