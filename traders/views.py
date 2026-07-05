@@ -37,8 +37,29 @@ class HomePageView(View):
     def get(self,request):
         form_data=Product.objects.all()
         return render(request,"home.html",{"form_data":form_data})
+    
 class ProductDetailsView(View):
     def get(self,request,**kwargs):
         pid=kwargs.get('pid')
         form_data=Product.objects.get(id=pid)
         return render(request,"product_details.html",{"form_data":form_data})
+    
+class ProductCreateView(View):
+    def get(self, request):
+        form = ProductForm()
+        return render(request,"addproduct.html",{"form_data": form})
+    def post(self, request):
+        form = ProductForm(data=request.POST)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.seller = request.user
+            product.save()
+            images = request.FILES.getlist("images")
+            for img in images:
+                ProductImage.objects.create(product=product,image=img)
+            return redirect("homepage")
+        return render(request, "addproduct.html",{"form_data": form})
+
+class ChatView(View):
+    def get(self,request):
+        return render(request,"chatpage.html")

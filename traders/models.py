@@ -29,6 +29,14 @@ class Product(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
     current_bid=models.DecimalField(max_digits=9,decimal_places=2,null=True,blank=True)
+    seller = models.ForeignKey(
+    User,
+    on_delete=models.CASCADE,
+    related_name="products",
+    null=True,
+    blank=True
+)
+    
 
     class Meta:
         ordering=["-created_at"]
@@ -165,4 +173,18 @@ class Message(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="images")
     image = models.ImageField(upload_to="products/")
+
+class Order(models.Model):
+    product_object=models.ManyToManyField(Product,related_name="product")
+    buyer_object=models.ForeignKey(User,on_delete=models.CASCADE,related_name="purchase")
+    is_paid=models.BooleanField(default=False)
+    razr_pay_order_id=models.CharField(max_length=100,null=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+    total=models.DecimalField(max_digits=10,decimal_places=2)
+    
+
+class Cart(models.Model):
+    product_object=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="cart_product_items")
+    buyer_object=models.ForeignKey(User,on_delete=models.CASCADE,related_name="cart_user_items")
+    added_at=models.DateTimeField(auto_now_add=True)
     

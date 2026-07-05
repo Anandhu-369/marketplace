@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from traders.models import *
 
 class SignupForm(UserCreationForm):
     class Meta:
@@ -10,3 +11,18 @@ class SignupForm(UserCreationForm):
 class SigninForm(forms.Form):
     username=forms.CharField(widget=forms.TextInput(attrs={"class":"w-full px-1 py-1 border rounded bg-white"}))
     password=forms.CharField(widget=forms.PasswordInput(attrs={"class":"w-full px-1 py-1 border rounded bg-white"}))
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = [
+            "product_type",
+            "title",
+            "description",
+            "price",
+            "starting_bid",
+            "category",
+            "is_negotiatable",
+            "auction_start",
+            "auction_end",
+        ]
