@@ -63,3 +63,52 @@ class ProductCreateView(View):
 class ChatView(View):
     def get(self,request):
         return render(request,"chatpage.html")
+
+
+
+class AddToCartView(View):
+    def get(self,request,**kwargs):
+        cid=kwargs.get('cid')
+        product=Product.objects.get(id=cid)
+        buyer=request.user
+        (object,created)=Cart.objects.get_or_create(product_object=product,buyer_object=buyer)
+        if created:
+            return redirect('homepage')
+        else:
+            messages.warning(request,"Course Already Added To Cart !!!")
+            return redirect('homepage')
+    
+class CartListView(View):
+    def get(self,request):
+        cart_list=Cart.objects.filter(buyer_object=request.user)
+        cart_count=cart_list.count()
+        cart_total=0
+        for i in cart_list:
+            cart_total+=i.product_object.price
+        return render(request,"cartlist.html",{"data":cart_list,"count":cart_count,"cart_total":cart_total})
+
+
+class RemoveCartView(View):
+    def get(self,request,**kwargs):
+        cid=kwargs.get('cid')
+        Cart.objects.get(id=cid).delete()
+        return redirect('cartlist')
+    
+class ShowProfileView(View):
+    def get(self,request):
+        form=Profile.objects.get(user=request.user)
+        return render(request,"profile.html",{"form_data":form})
+
+
+class EditProfileView(View):
+    def get(self, request):
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        form = ProfileForm(instance=profile)
+        return render(request, "editprofile.html", {"form_data": form})
+    def post(self, request):
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        form = ProfileForm(request.POST,request.FILES,instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect("profile")
+        return render(request,"editprofile.html",{"form_data":form})

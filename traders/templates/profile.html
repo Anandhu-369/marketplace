@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block base %}
+
+<div class="bg-gray-100 min-h-screen py-10">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-500 h-40 relative">
+
+            <div class="absolute left-1/2 transform -translate-x-1/2 top-20">
+
+                <img src="{{ form_data.image.url }}"
+                     alt="Profile"
+                     class="w-36 h-36 rounded-full border-4 border-white object-cover shadow-lg">
+
+            </div>
+
+        </div>
+
+        <!-- Profile Info -->
+        <div class="pt-24 pb-8 px-8 text-center">
+
+            <h1 class="text-3xl font-bold text-gray-800">
+                {{ request.user.get_full_name|default:request.user.username }}
+            </h1>
+
+        </div>
+
+        <!-- Details -->
+        <div class="grid md:grid-cols-2 gap-6 px-8 pb-8">
+
+            <div class="bg-gray-50 rounded-xl p-5 shadow-sm">
+                <h3 class="font-semibold text-gray-700 mb-2">📞 Phone</h3>
+                <p>{{ form_data.phone }}</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-5 shadow-sm">
+                <h3 class="font-semibold text-gray-700 mb-2">👤 Username</h3>
+                <p>{{ request.user.username }}</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-5 shadow-sm md:col-span-2">
+                <h3 class="font-semibold text-gray-700 mb-2">📍 Address</h3>
+                <p>{{ form_data.address|default:"No address provided" }}</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-5 shadow-sm">
+                <h3 class="font-semibold text-gray-700 mb-2">🌍 Latitude</h3>
+                <p>{{ form_data.latitude|default:"Not available" }}</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-5 shadow-sm">
+                <h3 class="font-semibold text-gray-700 mb-2">🌍 Longitude</h3>
+                <p>{{ form_data.longitude|default:"Not available" }}</p>
+            </div>
+
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-center gap-4 pb-8">
+
+            <a href="{% url 'editprofile' %}"
+               class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg transition">
+                Edit Profile
+            </a>
+
+            <a href="{% url 'homepage' %}"
+               class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg transition">
+                Back to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

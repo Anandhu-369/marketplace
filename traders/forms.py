@@ -16,13 +16,9 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            "product_type",
-            "title",
-            "description",
-            "price",
-            "starting_bid",
-            "category",
-            "is_negotiatable",
-            "auction_start",
-            "auction_end",
-        ]
+            "product_type","title","description","price","starting_bid","category","is_negotiatable","auction_start", "auction_end",]
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ["phone","address","image","latitude","longitude",]

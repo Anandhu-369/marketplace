@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block base %}
+
+<div class="bg-gray-100 min-h-screen py-10">
+    <div class="max-w-6xl mx-auto px-4">
+
+        <h1 class="text-3xl font-bold mb-8">My Cart</h1>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+
+            <!-- Cart Items -->
+            <div class="lg:col-span-2">
+
+                {% for i in data %}
+                <div class="bg-white rounded-xl shadow-md p-5 mb-6 flex flex-col md:flex-row gap-6">
+
+                    <!-- Image -->
+                    <div class="w-full md:w-40 flex justify-center">
+
+                        {% with img=i.product_object.images.first %}
+                        {% if img %}
+                        <img src="{{ img.image.url }}"
+                             class="w-32 h-32 object-contain"
+                             alt="{{ item.product_object.title }}">
+                        {% endif %}
+                        {% endwith %}
+
+                    </div>
+
+                    <!-- Details -->
+                    <div class="flex-1">
+
+                        <h2 class="text-xl font-semibold">
+                            {{ i.product_object.title }}
+                        </h2>
+
+                        <p class="text-gray-500 mt-1">
+                            {{ i.product_object.category }}
+                        </p>
+
+                        <p class="mt-2">
+                            <span class="font-semibold">Seller:</span>
+                            {{ i.product_object.seller }}
+                        </p>
+
+                        <p class="mt-4 text-2xl font-bold text-indigo-600">
+                            ₹{{ i.product_object.price }}
+                        </p>
+
+                    </div>
+
+                    <!-- Remove -->
+                    <div class="flex items-end">
+
+                        <a href="{% url 'remcart' i.id %}"
+                           class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                            Remove
+                        </a>
+
+                    </div>
+
+                </div>
+
+                {% empty %}
+
+                <div class="bg-white rounded-xl shadow p-10 text-center">
+
+                    <h2 class="text-2xl font-bold">
+                        Your cart is empty
+                    </h2>
+
+                    <p class="text-gray-500 mt-3">
+                        Add some products to continue shopping.
+                    </p>
+
+                    <a href="{% url 'homepage' %}"
+                       class="inline-block mt-6 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+                        Continue Shopping
+                    </a>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <!-- Summary -->
+            <div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-6">
+
+                    <h2 class="text-2xl font-bold mb-6">
+                        Cart Summary
+                    </h2>
+
+                    <div class="flex justify-between mb-4">
+                        <span>Items</span>
+                        <span>{{ count }}</span>
+                    </div>
+
+                    <div class="flex justify-between mb-4">
+                        <span>Subtotal</span>
+                        <span>₹{{ cart_total }}</span>
+                    </div>
+
+                    <div class="flex justify-between mb-4">
+                        <span>Delivery</span>
+                        <span class="text-green-600">Free</span>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="flex justify-between text-xl font-bold">
+                        <span>Total</span>
+                        <span>₹{{ cart_total }}</span>
+                    </div>
+
+                    <button
+                        class="w-full mt-6 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
+                        Checkout
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
