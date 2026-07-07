@@ -17,6 +17,35 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             "product_type","title","description","price","starting_bid","category","is_negotiatable","auction_start", "auction_end",]
+        widgets = {
+
+            "auction_start": forms.DateTimeInput(
+                attrs={
+                    "type": "datetime-local",
+                    "class": "w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500",
+                },
+                format="%Y-%m-%dT%H:%M",
+            ),
+
+            "auction_end": forms.DateTimeInput(
+                attrs={
+                    "type": "datetime-local",
+                    "class": "w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500",
+                },
+                format="%Y-%m-%dT%H:%M",
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["auction_start"].input_formats = [
+            "%Y-%m-%dT%H:%M"
+        ]
+
+        self.fields["auction_end"].input_formats = [
+            "%Y-%m-%dT%H:%M"
+        ]
 
 class ProfileForm(forms.ModelForm):
     class Meta:

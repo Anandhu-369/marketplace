@@ -1,82 +1,95 @@
-
 {% extends 'base.html' %}
+
 {% block base %}
 
-<style>
-    .form-container {
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 25px;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        font-family: Arial, sans-serif;
-    }
+<div class="min-h-screen bg-gray-100 py-10">
 
-    .form-container h2 {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #333;
-    }
+    <div class="max-w-4xl mx-auto">
 
-    table {
-        width: 100%;
-    }
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
 
-    input, select, textarea {
-        width: 100%;
-        padding: 10px;
-        margin: 6px 0 14px 0;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        outline: none;
-        transition: 0.2s;
-    }
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-8">
 
-    input:focus, select:focus, textarea:focus {
-        border-color: #4CAF50;
-        box-shadow: 0 0 5px rgba(76,175,80,0.3);
-    }
+                <h2 class="text-3xl font-bold text-white">
+                    Sell Your Product
+                </h2>
 
-    .file-input {
-        margin: 10px 0 20px 0;
-    }
+                <p class="text-indigo-100 mt-2">
+                    Fill in the details below to list your product.
+                </p>
 
-    .btn-submit {
-        width: 100%;
-        padding: 12px;
-        background: linear-gradient(135deg, #4CAF50, #2E7D32);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+            </div>
 
-    .btn-submit:hover {
-        transform: scale(1.02);
-        background: linear-gradient(135deg, #43A047, #1B5E20);
-    }
-</style>
+            <!-- Form -->
+            <div class="p-8">
 
-<div class="form-container">
-    <h2>Sell Your Product</h2>
+                <form method="POST"
+                      enctype="multipart/form-data"
+                      class="space-y-6">
 
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+                    {% csrf_token %}
 
-        <table>
-            {{ form_data.as_table }}
-        </table>
+                    <div class="space-y-5">
 
-        <div class="file-input">
-            <label><b>Upload Product Images</b></label>
-            <input type="file" name="images" multiple>
+                        {{ form_data.as_p }}
+
+                    </div>
+
+                    <div>
+
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Product Images
+                        </label>
+
+                        <input
+                            type="file"
+                            name="images"
+                            multiple
+                            class="block w-full text-sm text-gray-600
+                                   file:mr-4
+                                   file:py-3
+                                   file:px-5
+                                   file:rounded-lg
+                                   file:border-0
+                                   file:bg-indigo-600
+                                   file:text-white
+                                   hover:file:bg-indigo-700
+                                   cursor-pointer">
+
+                        <p class="text-xs text-gray-500 mt-2">
+                            You can upload multiple images.
+                        </p>
+
+                    </div>
+
+                    <div class="flex justify-end gap-4 pt-4">
+
+                        <a href="{% url 'homepage' %}"
+                           class="px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100">
+
+                            Cancel
+
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow">
+
+                            Sell Now
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
 
-        <button type="submit" class="btn-submit">Sell Now</button>
-    </form>
+    </div>
+
 </div>
 
 {% endblock base %}

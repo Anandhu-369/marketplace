@@ -22,9 +22,20 @@
                         <a href="{% url 'addproduct' %}" class="text-gray-300 hover:text-white border-b-2 border-transparent hover:border-gray-300 px-1 pt-1 inline-flex items-center text-sm font-medium">
                             Sell Product
                         </a>
-                        <a href="#" class="text-gray-300 hover:text-white border-b-2 border-transparent hover:border-gray-300 px-1 pt-1 inline-flex items-center text-sm font-medium">
-                            Projects
-                        </a>
+                        <a href="{% url 'auction-list' %}"
+   class="text-gray-300 hover:text-white border-b-2 border-transparent hover:border-gray-300 px-1 pt-1 inline-flex items-center text-sm font-medium">
+    Auctions
+</a>
+
+<a href="{% url 'my-bids' %}"
+   class="text-gray-300 hover:text-white border-b-2 border-transparent hover:border-gray-300 px-1 pt-1 inline-flex items-center text-sm font-medium">
+    My Bids
+</a>
+
+<a href="{% url 'my-auctions' %}"
+   class="text-gray-300 hover:text-white border-b-2 border-transparent hover:border-gray-300 px-1 pt-1 inline-flex items-center text-sm font-medium">
+    My Auctions
+</a>
                         <a href="{% url 'cartlist' %}" class="text-gray-300 hover:text-white border-b-2 border-transparent hover:border-gray-300 px-1 pt-1 inline-flex items-center text-sm font-medium">
                             Cart <span class="bg-red-500 text-white">{{cart_count}}</span>
                         </a>

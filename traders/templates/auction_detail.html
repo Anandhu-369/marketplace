@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block base %}
+
+<div class="max-w-7xl mx-auto px-4 py-10">
+
+    <div class="mb-8">
+        <a href="{% url 'auction-list' %}"
+           class="text-indigo-600 hover:underline">
+            ← Back to Auctions
+        </a>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-10">
+
+        <!-- Product Image -->
+
+        <div>
+
+           {% if auction.images.first %}
+<img
+    src="{{ auction.images.first.image.url }}"
+    class="w-full h-[500px] object-cover rounded-2xl shadow-lg"
+    alt="{{ auction.title }}"
+>
+{% else %}
+<div class="w-full h-[500px] bg-gray-200 rounded-2xl flex items-center justify-center">
+    No Image Available
+</div>
+{% endif %}
+
+        </div>
+
+        <!-- Auction Details -->
+
+        <div>
+
+            <h1 class="text-4xl font-bold mb-4">
+                {{ auction.title }}
+            </h1>
+
+            <p class="text-gray-600 leading-7">
+                {{ auction.description }}
+            </p>
+
+            <div class="mt-8 space-y-4">
+
+                <div class="flex justify-between border-b pb-3">
+
+                    <span class="font-semibold">
+                        Seller
+                    </span>
+
+                    <span>
+                        {{ auction.seller.username }}
+                    </span>
+
+                </div>
+
+                <div class="flex justify-between border-b pb-3">
+
+                    <span class="font-semibold">
+                        Starting Bid
+                    </span>
+
+                    <span>
+                        ₹{{ auction.starting_bid }}
+                    </span>
+
+                </div>
+
+                <div class="flex justify-between border-b pb-3">
+
+                    <span class="font-semibold">
+                        Current Bid
+                    </span>
+
+                    <span
+                        id="currentBid"
+                        class="text-2xl font-bold text-indigo-600">
+
+                        {% if auction.current_bid %}
+                            ₹{{ auction.current_bid }}
+                        {% else %}
+                            ₹{{ auction.starting_bid }}
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+                <div class="flex justify-between border-b pb-3">
+
+                    <span class="font-semibold">
+                        Auction Status
+                    </span>
+
+                    <span id="auctionStatus">
+
+                        {% if auction.auction_status == "live" %}
+                        <span class="text-green-600 font-bold">
+                            LIVE
+                        </span>
+
+                        {% elif auction.auction_status == "scheduled" %}
+                        <span class="text-yellow-600 font-bold">
+                            Scheduled
+                        </span>
+
+                        {% else %}
+                        <span class="text-red-600 font-bold">
+                            Ended
+                        </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+                <div class="flex justify-between">
+
+                    <span class="font-semibold">
+                        Time Remaining
+                    </span>
+
+                    <span
+                        id="countdown"
+                        class="text-xl font-bold text-red-500">
+                        Loading...
+                    </span>
+
+                </div>
+
+            </div>
+
+            <!-- Bid Form -->
+
+            {% if request.user != auction.seller %}
+
+            <div class="mt-10">
+
+                <form id="bidForm">
+
+                    {% csrf_token %}
+
+                    <label class="font-semibold">
+
+                        Enter Your Bid
+
+                    </label>
+
+                    <input
+                        id="bidAmount"
+                        type="number"
+                        step="0.01"
+                        class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-500">
+
+                    <button
+                        class="mt-5 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg">
+
+                        Place Bid
+
+                    </button>
+
+                </form>
+
+                <div
+                    id="message"
+                    class="mt-4 text-center font-semibold">
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Bid History -->
+
+    <div class="mt-16">
+
+        <h2 class="text-3xl font-bold mb-6">
+
+            Recent Bids
+
+        </h2>
+
+        <div
+            id="bidHistory"
+            class="bg-white rounded-xl shadow divide-y">
+
+            {% for bid in bids %}
+
+            <div class="flex justify-between p-4">
+
+                <div>
+
+                    <p class="font-semibold">
+
+                        {{ bid.bidder.username }}
+
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+
+                        {{ bid.created_at }}
+
+                    </p>
+
+                </div>
+
+                <div class="text-indigo-600 font-bold">
+
+                    ₹{{ bid.amount }}
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <div class="p-6 text-center text-gray-500">
+
+                No bids yet.
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const auctionId="{{ auction.id }}";
+
+const csrf=document.querySelector(
+    "[name=csrfmiddlewaretoken]"
+).value;
+
+</script>
+<script>
+
+const auctionId = "{{ auction.id }}";
+
+const csrfToken = document.querySelector(
+    "[name=csrfmiddlewaretoken]"
+).value;
+
+const bidForm = document.getElementById("bidForm");
+const bidAmount = document.getElementById("bidAmount");
+const message = document.getElementById("message");
+const currentBid = document.getElementById("currentBid");
+const bidHistory = document.getElementById("bidHistory");
+const countdown = document.getElementById("countdown");
+const status = document.getElementById("auctionStatus");
+
+
+// -----------------------------
+// Place Bid
+// -----------------------------
+
+if (bidForm){
+
+bidForm.addEventListener("submit",function(e){
+
+    e.preventDefault();
+
+    fetch(`/auction/${auctionId}/bid/`,{
+
+        method:"POST",
+
+        headers:{
+            "X-CSRFToken":csrfToken,
+            "Content-Type":"application/x-www-form-urlencoded"
+        },
+
+        body:new URLSearchParams({
+
+            amount:bidAmount.value
+
+        })
+
+    })
+
+    .then(response=>response.json())
+
+    .then(data=>{
+
+        if(data.success){
+
+            message.innerHTML=
+            "<span class='text-green-600'>Bid Placed Successfully.</span>";
+
+            bidAmount.value="";
+
+            loadCurrentBid();
+
+            loadHistory();
+
+        }
+
+        else{
+
+            message.innerHTML=
+            "<span class='text-red-600'>"+data.message+"</span>";
+
+        }
+
+    });
+
+});
+
+}
+
+
+
+// -----------------------------
+// Current Bid
+// -----------------------------
+
+function loadCurrentBid(){
+
+fetch(`/auction/${auctionId}/current/`)
+
+.then(response=>response.json())
+
+.then(data=>{
+
+currentBid.innerHTML="₹"+data.current_bid;
+
+if(data.status=="live"){
+
+status.innerHTML=
+"<span class='text-green-600 font-bold'>LIVE</span>";
+
+}
+
+else if(data.status=="scheduled"){
+
+status.innerHTML=
+"<span class='text-yellow-600 font-bold'>Scheduled</span>";
+
+}
+
+else{
+
+status.innerHTML=
+"<span class='text-red-600 font-bold'>Ended</span>";
+
+}
+
+});
+
+}
+
+
+
+// -----------------------------
+// Bid History
+// -----------------------------
+
+function loadHistory(){
+
+fetch(`/auction/${auctionId}/history/`)
+
+.then(response=>response.json())
+
+.then(data=>{
+
+bidHistory.innerHTML="";
+
+if(data.length==0){
+
+bidHistory.innerHTML=`
+<div class="p-5 text-center text-gray-500">
+No bids yet.
+</div>
+`;
+
+return;
+
+}
+
+data.forEach(bid=>{
+
+bidHistory.innerHTML+=`
+
+<div class="flex justify-between p-4 border-b">
+
+<div>
+
+<p class="font-semibold">
+${bid.user}
+</p>
+
+<p class="text-sm text-gray-500">
+${bid.time}
+</p>
+
+</div>
+
+<div class="text-indigo-600 font-bold">
+
+₹${bid.amount}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+});
+
+}
+
+
+
+// -----------------------------
+// Countdown
+// -----------------------------
+
+function updateTimer(){
+
+fetch(`/auction/${auctionId}/timer/`)
+
+.then(response=>response.json())
+
+.then(data=>{
+
+let seconds=data.seconds;
+
+if(seconds<=0){
+
+countdown.innerHTML="Auction Ended";
+
+checkWinner();
+
+return;
+
+}
+
+let days=Math.floor(seconds/86400);
+
+seconds%=86400;
+
+let hrs=Math.floor(seconds/3600);
+
+seconds%=3600;
+
+let mins=Math.floor(seconds/60);
+
+seconds%=60;
+
+countdown.innerHTML=
+
+days+"d "
++hrs+"h "
++mins+"m "
++seconds+"s";
+
+});
+
+}
+
+
+
+// -----------------------------
+// Winner
+// -----------------------------
+
+function checkWinner(){
+
+fetch(`/auction/${auctionId}/winner/`)
+
+.then(response=>response.json())
+
+.then(data=>{
+
+if(data.winner){
+
+message.innerHTML=
+
+`
+
+<div class="mt-5 bg-green-100 text-green-700 p-4 rounded-lg">
+
+🏆 Winner :
+<b>${data.winner}</b>
+
+<br>
+
+Winning Bid :
+₹${data.amount}
+
+</div>
+
+`;
+
+}
+
+if(bidForm){
+
+bidForm.style.display="none";
+
+}
+
+});
+
+}
+
+
+
+// -----------------------------
+// Refresh Every 3 Seconds
+// -----------------------------
+
+loadCurrentBid();
+
+loadHistory();
+
+updateTimer();
+
+setInterval(loadCurrentBid,3000);
+
+setInterval(loadHistory,3000);
+
+setInterval(updateTimer,1000);
+
+</script>
+
+{% endblock base %}

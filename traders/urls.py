@@ -11,4 +11,60 @@ urlpatterns = [
     path('removecart/<int:cid>',RemoveCartView.as_view(),name="remcart"),
     path("profile",ShowProfileView.as_view(),name="profile"),
     path("editprofile",EditProfileView.as_view(),name="editprofile"),
+    path('checkout',PlaceOrderView.as_view(),name='checkout'),
+    path('paymentverify',PaymentVerify.as_view(),name='paymentverify'),
+      path(
+        "auctions/",
+        AuctionListView.as_view(),
+        name="auction-list"
+    ),
+
+    path(
+        "auction/<int:pk>/",
+        AuctionDetailView.as_view(),
+        name="auction-detail"
+    ),
+
+    path(
+        "auction/<int:pk>/bid/",
+        PlaceBidView.as_view(),
+        name="place-bid"
+    ),
+
+    path(
+        "auction/<int:pk>/current/",
+        CurrentBidAPIView.as_view(),
+        name="current-bid"
+    ),
+
+    path(
+        "auction/<int:pk>/history/",
+        BidHistoryAPIView.as_view(),
+        name="bid-history"
+    ),
+
+    path(
+        "auction/<int:pk>/timer/",
+        AuctionTimerAPIView.as_view(),
+        name="auction-timer"
+    ),
+
+    path(
+        "auction/<int:pk>/winner/",
+        AuctionWinnerAPIView.as_view(),
+        name="auction-winner"
+    ),
+
+    path(
+        "my-bids/",
+        MyBidsView.as_view(),
+        name="my-bids"
+    ),
+
+    path(
+        "my-auctions/",
+        MyAuctionsView.as_view(),
+        name="my-auctions"
+    ),
+    
 ]
