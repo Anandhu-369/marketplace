@@ -4,203 +4,254 @@
 
 <div class="max-w-7xl mx-auto px-4 py-10">
 
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-10">
 
         <div>
             <h1 class="text-4xl font-bold text-gray-800">
-                My Auctions
+                My Products
             </h1>
             <p class="text-gray-500 mt-2">
-                Manage all your auction products.
+                Manage all your auction and fixed-price products.
             </p>
         </div>
 
-        <a href="{% url 'create-product' %}"
-           class="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow">
-            + Create Auction
+        <a href="{% url 'addproduct' %}"
+           class="mt-5 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow">
+            + Add Product
         </a>
 
     </div>
 
-    {% if auctions %}
+    {% if products %}
 
-    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+    <div class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
 
-        {% for auction in auctions %}
+        {% for product in products %}
 
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl duration-300">
 
-            {% if auction.images.first %}
-                <img src="{{ auction.images.first.image.url }}"
-                     class="h-60 w-full object-cover">
+            <!-- Image -->
+            {% if product.images.first %}
+                <img src="{{ product.images.first.image.url }}"
+                     class="w-full h-60 object-cover">
             {% else %}
-                <div class="h-60 bg-gray-200 flex items-center justify-center">
+                <div class="h-60 bg-gray-200 flex items-center justify-center text-gray-500">
                     No Image
                 </div>
             {% endif %}
 
             <div class="p-6">
 
-                <div class="flex justify-between items-center">
+                <!-- Title -->
+                <div class="flex justify-between items-start">
 
-                    <h2 class="text-xl font-bold">
-                        {{ auction.title }}
-                    </h2>
+                    <div>
 
-                    {% if auction.auction_status == "live" %}
+                        <h2 class="text-xl font-bold text-gray-800">
+                            {{ product.title }}
+                        </h2>
 
-                        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">
-                            LIVE
-                        </span>
+                        <p class="text-sm text-gray-500">
+                            {{ product.category }}
+                        </p>
 
-                    {% elif auction.auction_status == "scheduled" %}
+                    </div>
 
-                        <span class="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">
-                            Scheduled
-                        </span>
+                    {% if product.product_type == "Auction" %}
+
+                        {% if product.auction_status == "live" %}
+                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+                                LIVE
+                            </span>
+
+                        {% elif product.auction_status == "scheduled" %}
+
+                            <span class="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full">
+                                Scheduled
+                            </span>
+
+                        {% else %}
+
+                            <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full">
+                                Ended
+                            </span>
+
+                        {% endif %}
 
                     {% else %}
 
-                        <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full">
-                            Ended
+                        <span class="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
+                            Fixed Price
                         </span>
 
                     {% endif %}
 
                 </div>
 
-                <p class="text-gray-500 mt-3 line-clamp-3">
-                    {{ auction.description }}
+                <!-- Description -->
+                <p class="mt-4 text-gray-600 line-clamp-2">
+                    {{ product.description }}
                 </p>
 
-                <div class="mt-6 space-y-3">
+                <!-- Details -->
+                <div class="mt-6 space-y-3 text-sm">
 
-                    <div class="flex justify-between">
+                    {% if product.product_type == "Auction" %}
 
-                        <span>Starting Bid</span>
+                        <div class="flex justify-between">
+                            <span>Starting Bid</span>
+                            <span>₹{{ product.starting_bid }}</span>
+                        </div>
 
-                        <span class="font-semibold">
-                            ₹{{ auction.starting_bid }}
-                        </span>
+                        <div class="flex justify-between font-semibold text-indigo-600">
+                            <span>Current Bid</span>
+                            <span>
+                                ₹{% if product.current_bid %}
+                                    {{ product.current_bid }}
+                                  {% else %}
+                                    {{ product.starting_bid }}
+                                  {% endif %}
+                            </span>
+                        </div>
 
-                    </div>
+                        <div class="flex justify-between">
+                            <span>Total Bids</span>
+                            <span>{{ product.bids.count }}</span>
+                        </div>
 
-                    <div class="flex justify-between">
+                        <div class="flex justify-between">
+                            <span>Ends</span>
+                            <span>{{ product.auction_end|date:"d M Y H:i" }}</span>
+                        </div>
 
-                        <span>Current Bid</span>
+                    {% else %}
 
-                        <span class="font-bold text-indigo-600">
+                        <div class="flex justify-between">
+                            <span>Price</span>
+                            <span class="font-semibold text-green-600">
+                                ₹{{ product.price }}
+                            </span>
+                        </div>
 
-                            {% if auction.current_bid %}
-                                ₹{{ auction.current_bid }}
+                        <div class="flex justify-between">
+                            <span>Negotiable</span>
+
+                            {% if product.is_negotiatable %}
+                                <span class="text-green-600">Yes</span>
                             {% else %}
-                                ₹{{ auction.starting_bid }}
+                                <span class="text-red-500">No</span>
                             {% endif %}
+                        </div>
 
-                        </span>
+                        <div class="flex justify-between">
+                            <span>Status</span>
 
-                    </div>
+                            {% if product.is_purchased %}
+                                <span class="text-red-600">Sold</span>
+                            {% else %}
+                                <span class="text-green-600">Available</span>
+                            {% endif %}
+                        </div>
 
-                    <div class="flex justify-between">
-
-                        <span>Total Bids</span>
-
-                        <span>
-
-                            {{ auction.bids.count }}
-
-                        </span>
-
-                    </div>
-
-                    <div class="flex justify-between">
-
-                        <span>Starts</span>
-
-                        <span class="text-sm">
-
-                            {{ auction.auction_start }}
-
-                        </span>
-
-                    </div>
-
-                    <div class="flex justify-between">
-
-                        <span>Ends</span>
-
-                        <span class="text-sm">
-
-                            {{ auction.auction_end }}
-
-                        </span>
-
-                    </div>
+                    {% endif %}
 
                 </div>
+            {% if product.is_purchased and product.buyer %}
 
-                {% if auction.auction_status == "ended" %}
+<div class="mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
 
-                    {% with winner=auction.bids.first %}
+    <h3 class="font-bold text-green-700 mb-3">
+        Product Sold
+    </h3>
 
-                        {% if winner %}
+    <div class="space-y-1 text-sm">
 
-                        <div class="mt-6 bg-green-100 border border-green-300 rounded-lg p-4">
+        <p>
+            <span class="font-semibold">Buyer:</span>
+            {{ product.buyer.get_full_name|default:product.buyer.username }}
+        </p>
 
-                            <h3 class="font-bold text-green-700">
-                                🏆 Winner
-                            </h3>
+        <p>
+            <span class="font-semibold">Username:</span>
+            {{ product.buyer.username }}
+        </p>
 
-                            <p class="mt-2">
+        <p>
+            <span class="font-semibold">Email:</span>
+            {{ product.buyer.email }}
+        </p>
 
-                                {{ winner.bidder.username }}
+    </div>
 
-                            </p>
+{% if product.buyer_profile %}
 
-                            <p class="font-bold text-lg">
+<p>
+     <span class="font-semibold">Phone:</span>
+    {{ product.buyer_profile.phone }}
+</p>
 
-                                ₹{{ winner.amount }}
+<p>
+     <span class="font-semibold">Address:</span>
+    {{ product.buyer_profile.address }}
+</p>
 
-                            </p>
+</div>
+{% endif %}
+{% endif %}
 
-                        </div>
 
-                        {% else %}
-
-                        <div class="mt-6 bg-gray-100 rounded-lg p-4">
-
-                            No bids received.
-
-                        </div>
-
-                        {% endif %}
-
-                    {% endwith %}
-
-                {% endif %}
-
+                <!-- Buttons -->
                 <div class="grid grid-cols-3 gap-3 mt-8">
 
-                    <a href="{% url 'auction-detail' auction.id %}"
+                    <a href="{% url 'productdetails' product.id %}"
                        class="text-center bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg">
 
                         View
 
                     </a>
 
-                    <a href="{% url 'edit-product' auction.id %}"
-                       class="text-center bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg">
+                    {% if product.is_purchased %}
 
-                        Edit
+<button
+    disabled
+    class="bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed">
 
-                    </a>
+    Sold
 
-                    <a href="{% url 'delete-product' auction.id %}"
-                       class="text-center bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg">
+</button>
 
-                        Delete
+{% else %}
 
-                    </a>
+<a href="{% url 'editproduct' product.id %}"
+   class="text-center bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg">
+
+    Edit
+
+</a>
+
+{% endif %}
+
+                    {% if product.is_purchased %}
+
+<button
+    disabled
+    class="bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed">
+
+    Sold
+
+</button>
+
+{% else %}
+
+<a href="{% url 'deleteproduct' product.id %}"
+   class="text-center bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg">
+
+    Delete
+
+</a>
+
+{% endif %}
 
                 </div>
 
@@ -214,18 +265,20 @@
 
     {% else %}
 
-    <div class="bg-white rounded-xl shadow-lg p-20 text-center">
+    <div class="bg-white rounded-2xl shadow-lg p-20 text-center">
 
         <h2 class="text-3xl font-bold text-gray-700">
-
-            You haven't created any auctions.
-
+            You haven't added any products yet.
         </h2>
 
-        <a href="{% url 'create-product' %}"
-           class="inline-block mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg">
+        <p class="text-gray-500 mt-3">
+            Start selling by creating your first product.
+        </p>
 
-            Create Your First Auction
+        <a href="{% url 'addproduct' %}"
+           class="inline-block mt-8 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg">
+
+            Add Product
 
         </a>
 

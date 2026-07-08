@@ -6,6 +6,7 @@ from django.urls import reverse_lazy,reverse
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from traders.models import *
+from django.http import HttpResponse
 import razorpay
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -16,6 +17,7 @@ from django.utils import timezone
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 # Create your views here.
 
 RAZOR_PAY_KEY="rzp_test_TAcgBnDb4U1Bbl"
@@ -47,14 +49,14 @@ class SigninView(FormView):
 
 class HomePageView(View):
     def get(self,request):
-        form_data=Product.objects.filter(is_purchased=False)
+        form_data=Product.objects.filter(is_purchased=False,product_type='FixedPrice')
         return render(request,"home.html",{"form_data":form_data})
     
 class ProductDetailsView(View):
-    def get(self,request,**kwargs):
-        pid=kwargs.get('pid')
-        form_data=Product.objects.get(id=pid)
-        return render(request,"product_details.html",{"form_data":form_data})
+    def get(self,request,pk):
+        form_data = get_object_or_404(Product,id=pk)
+        seller_profile = Profile.objects.filter(user=form_data.seller).first()
+        return render(request,"product_details.html",{"form_data":form_data,"seller_profile": seller_profile})
     
 class ProductCreateView(View):
     def get(self, request):
@@ -99,6 +101,26 @@ class CartListView(View):
             cart_total+=i.product_object.price
         return render(request,"cartlist.html",{"data":cart_list,"count":cart_count,"cart_total":cart_total})
 
+def move_auction_to_winner(product):
+
+    if product.product_type != "Auction":
+        return
+
+    if product.auction_status != "ended":
+        return
+
+    winner_bid = product.bids.order_by("-amount").first()
+
+    if not winner_bid:
+        return
+
+    Cart.objects.get_or_create(
+        buyer_object=winner_bid.bidder,
+        product_object=product,
+        defaults={
+            "price_at_purchase": winner_bid.amount
+        }
+    )
 
 class RemoveCartView(View):
     def get(self,request,**kwargs):
@@ -133,7 +155,10 @@ class PlaceOrderView(View):
         qs=Cart.objects.filter(buyer_object=buyer)
         cart_total=0
         for i in qs:
-            cart_total+=i.product_object.price
+            if i.product_object.product_type == "Auction":
+                cart_total+=i.price_at_purchase
+            else:
+                cart_total+=i.product_object.price
         order=Order.objects.create(buyer_object=buyer,total=cart_total)
         for i in qs:
             order.product_object.add(i.product_object)
@@ -167,8 +192,9 @@ class PaymentVerify(View):
             rzr_pay_order_id=request.POST.get('razorpay_order_id')
             order=Order.objects.get(razr_pay_order_id=rzr_pay_order_id)
             order.is_paid=True
-            order.product_object.is_purchased=True
+            order.product_object.update(is_purchased=True)
             order.save()
+            return redirect('myorders')
         except Exception as e:
             print(e)
             print("Failed")
@@ -299,8 +325,10 @@ class AuctionTimerAPIView(View):
     def get(self, request, pk):
 
         product = get_object_or_404(Product, pk=pk)
-
         now = timezone.now()
+        if product.auction_status == "ended":
+            move_auction_to_winner(product)
+
 
         remaining = (
             product.auction_end - now
@@ -317,55 +345,99 @@ class AuctionTimerAPIView(View):
         })
     
 class AuctionWinnerAPIView(View):
-
     def get(self, request, pk):
-
         product = get_object_or_404(Product, pk=pk)
-
         if product.auction_status != "ended":
-            return JsonResponse({
-                "winner": None
-            })
-
+            return JsonResponse({"winner": None})
         winner = product.bids.order_by("-amount").first()
-
         if winner:
-
-            return JsonResponse({
-
-                "winner": winner.bidder.username,
-                "amount": str(winner.amount)
-
-            })
-
-        return JsonResponse({
-
-            "winner": None
-
-        })
-    
+            return JsonResponse({"winner": winner.bidder.username,"amount": str(winner.amount)})
+        return JsonResponse({"winner": None}) 
 class MyBidsView(LoginRequiredMixin, ListView):
-
     model = Bid
     template_name = "my_bids.html"
     context_object_name = "bids"
-
     def get_queryset(self):
         return Bid.objects.filter(
             bidder=self.request.user
         ).select_related("product")
-
+    
 class MyAuctionsView(LoginRequiredMixin, ListView):
-
     model = Product
     template_name = "my_auctions.html"
-    context_object_name = "auctions"
-
+    context_object_name = "products"
     def get_queryset(self):
+        products= Product.objects.filter(seller=self.request.user).prefetch_related("images", "bids")
+        for product in products:
+            product.buyer = None
 
-        return Product.objects.filter(
+            if product.is_purchased:
+                order = (
+                    Order.objects.filter(
+                        product_object=product,
+                        is_paid=True
+                    )
+                    .select_related("buyer_object")
+                    .first()
+                )
 
-            seller=self.request.user,
-            product_type="Auction"
+                if order:
+                    product.buyer = order.buyer_object
+                    product.buyer_profile = Profile.objects.filter(
+                        user=order.buyer_object
+                    ).first()
 
-        )
+
+        return products
+    
+class CompleteAuctionsView(View):
+    def get(self, request):
+        auctions = Product.objects.filter(product_type="Auction")
+        for product in auctions:
+            if product.auction_status == "ended":
+                winner = product.bids.order_by("-amount").first()
+                if winner:
+                    Cart.objects.get_or_create(buyer_object=winner.bidder,product_object=product,defaults={"price_at_purchase": winner.amount
+                        }
+                    )
+        return HttpResponse("Done")
+    
+class EditProductView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        product = get_object_or_404(Product,pk=pk,seller=request.user)
+        form = ProductForm(instance=product)
+        return render(request, "editproduct.html", {"form": form,"product": product,"images": product.images.all(),})
+    def post(self, request, pk):
+        product = get_object_or_404(Product,pk=pk,seller=request.user)
+        form = ProductForm(request.POST,request.FILES,instance=product)
+        if form.is_valid():
+            product = form.save()
+            for image in request.FILES.getlist("images"):
+                ProductImage.objects.create(product=product,image=image)
+            messages.success(request, "Product updated successfully.")
+            return redirect("productdetails", pk=product.pk)
+        return render(request, "editproduct.html", {"form": form,"product": product,"images": product.images.all(),})
+    
+class DeleteProductView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        product = get_object_or_404(Product,pk=pk,seller=request.user)
+        return render(request, "deleteproduct.html", {"product": product})
+    def post(self, request, pk):
+        product = get_object_or_404(Product,pk=pk,seller=request.user)
+        product.delete()
+        messages.success(request,"Product deleted successfully.")
+        return redirect("my-auctions")
+    
+
+class MyOrdersView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = "my_orders.html"
+    context_object_name = "orders"
+    def get_queryset(self):
+        return (Order.objects.filter(buyer_object=self.request.user).prefetch_related("product_object").order_by("-created_at"))
+
+class SignOutView(View):
+    def get(self, request):
+        logout(request)
+        messages.success(request, "You have been signed out successfully.")
+        return redirect("signin") 

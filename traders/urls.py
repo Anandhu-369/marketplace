@@ -3,7 +3,7 @@ from traders.views import *
 urlpatterns = [
     path('signup',SignupView.as_view(),name="signup"),
     path('homepage',HomePageView.as_view(),name="homepage"),
-    path('productdetails/<int:pid>',ProductDetailsView.as_view(),name="productdetails"),
+    path('productdetails/<int:pk>',ProductDetailsView.as_view(),name="productdetails"),
     path('addproduct',ProductCreateView.as_view(),name="addproduct"),
     path('chat',ChatView.as_view(),name='chat'),
     path('addtocart/<int:cid>',AddToCartView.as_view(),name="addtocart"),
@@ -13,58 +13,18 @@ urlpatterns = [
     path("editprofile",EditProfileView.as_view(),name="editprofile"),
     path('checkout',PlaceOrderView.as_view(),name='checkout'),
     path('paymentverify',PaymentVerify.as_view(),name='paymentverify'),
-      path(
-        "auctions/",
-        AuctionListView.as_view(),
-        name="auction-list"
-    ),
-
-    path(
-        "auction/<int:pk>/",
-        AuctionDetailView.as_view(),
-        name="auction-detail"
-    ),
-
-    path(
-        "auction/<int:pk>/bid/",
-        PlaceBidView.as_view(),
-        name="place-bid"
-    ),
-
-    path(
-        "auction/<int:pk>/current/",
-        CurrentBidAPIView.as_view(),
-        name="current-bid"
-    ),
-
-    path(
-        "auction/<int:pk>/history/",
-        BidHistoryAPIView.as_view(),
-        name="bid-history"
-    ),
-
-    path(
-        "auction/<int:pk>/timer/",
-        AuctionTimerAPIView.as_view(),
-        name="auction-timer"
-    ),
-
-    path(
-        "auction/<int:pk>/winner/",
-        AuctionWinnerAPIView.as_view(),
-        name="auction-winner"
-    ),
-
-    path(
-        "my-bids/",
-        MyBidsView.as_view(),
-        name="my-bids"
-    ),
-
-    path(
-        "my-auctions/",
-        MyAuctionsView.as_view(),
-        name="my-auctions"
-    ),
+    path("auctions/",AuctionListView.as_view(),name="auction-list"),
+    path("auction/<int:pk>/",AuctionDetailView.as_view(),name="auction-detail"),
+    path("auction/<int:pk>/bid/",PlaceBidView.as_view(),name="place-bid"),
+    path("auction/<int:pk>/current/",CurrentBidAPIView.as_view(),name="current-bid"),
+    path("auction/<int:pk>/history/",BidHistoryAPIView.as_view(),name="bid-history"),
+    path("auction/<int:pk>/timer/",AuctionTimerAPIView.as_view(),name="auction-timer"),
+    path("auction/<int:pk>/winner/",AuctionWinnerAPIView.as_view(),name="auction-winner"),
+    path("my-bids/",MyBidsView.as_view(),name="my-bids"),
+    path("my-auctions/",MyAuctionsView.as_view(),name="my-auctions"),
+    path('editproduct/<int:pk>',EditProductView.as_view(),name="editproduct"),
+    path('deleteproduct/<int:pk>',DeleteProductView.as_view(),name="deleteproduct"),
+    path('logout',SignOutView.as_view(),name='logout'),
+    path('myorders',MyOrdersView.as_view(),name="myorders"),
     
 ]

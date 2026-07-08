@@ -2,98 +2,107 @@
 
 {% block base %}
 
-<div class="min-h-screen bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 py-12 px-4">
+<div class="min-h-screen bg-gray-100 py-10">
 
-    <div class="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div class="max-w-6xl mx-auto">
 
-        <!-- Cover -->
-        <div class="relative h-56 bg-gradient-to-r from-indigo-600 via-blue-500 to-cyan-500">
+        <!-- Profile Card -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
 
-            <div class="absolute left-1/2 -translate-x-1/2 top-full -translate-y-1/2">
-                <img
-                    src="{{ form_data.image.url }}"
-                    alt="Profile"
-                    class="w-40 h-40 rounded-full border-4 border-white object-cover shadow-xl bg-white"
-                >
+            <!-- Header -->
+            <div class="h-52 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 relative">
+
+                <div class="absolute left-1/2 -bottom-16 transform -translate-x-1/2">
+
+                    {% if form_data.image %}
+                        <img src="{{ form_data.image.url }}"
+                             class="w-36 h-36 rounded-full border-4 border-white object-cover shadow-xl">
+                    {% else %}
+                        <div class="w-36 h-36 rounded-full border-4 border-white bg-white flex items-center justify-center text-5xl font-bold text-indigo-600 shadow-xl">
+                            {{ request.user.username|first|upper }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
             </div>
 
-        </div>
+            <!-- Name -->
+            <div class="pt-20 pb-8 text-center">
 
-        <!-- User Info -->
-        <div class="pt-24 pb-8 text-center px-6">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </h1>
 
-            <h1 class="text-4xl font-bold text-gray-800">
-                {{ request.user.get_full_name|default:request.user.username }}
-            </h1>
-
-            <p class="text-gray-500 mt-2">
-                @{{ request.user.username }}
-            </p>
-
-        </div>
-
-        <!-- Details -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-8 pb-10">
-
-            <div class="bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition p-6">
-                <h3 class="text-sm uppercase tracking-wide text-indigo-600 font-semibold mb-2">
-                    Phone Number
-                </h3>
-                <p class="text-lg text-gray-800 font-medium">
-                    {{ form_data.phone }}
+                <p class="text-gray-500 mt-2">
+                    @{{ request.user.username }}
                 </p>
+
             </div>
 
-            <div class="bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition p-6">
-                <h3 class="text-sm uppercase tracking-wide text-indigo-600 font-semibold mb-2">
-                    Username
-                </h3>
-                <p class="text-lg text-gray-800 font-medium">
-                    {{ request.user.username }}
-                </p>
+            <!-- Information -->
+            <div class="grid md:grid-cols-2 gap-6 px-8 pb-8">
+
+                <div class="bg-gray-50 rounded-2xl p-5">
+                    <h3 class="text-sm text-indigo-600 font-semibold uppercase">
+                        Phone Number
+                    </h3>
+
+                    <p class="mt-2 text-lg">
+                        {{ form_data.phone|default:"Not Added" }}
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-5">
+                    <h3 class="text-sm text-indigo-600 font-semibold uppercase">
+                        Username
+                    </h3>
+
+                    <p class="mt-2 text-lg">
+                        {{ request.user.username }}
+                    </p>
+                </div>
+
+                <div class="md:col-span-2 bg-gray-50 rounded-2xl p-5">
+                    <h3 class="text-sm text-indigo-600 font-semibold uppercase">
+                        Address
+                    </h3>
+
+                    <p class="mt-2">
+                        {{ form_data.address|default:"Address not added." }}
+                    </p>
+                </div>
+
+                </div>
+
             </div>
 
-            <div class="md:col-span-2 bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition p-6">
-                <h3 class="text-sm uppercase tracking-wide text-indigo-600 font-semibold mb-2">
-                    Address
-                </h3>
-                <p class="text-lg text-gray-800">
-                    {{ form_data.address|default:"No address available" }}
-                </p>
+            <!-- Quick Actions -->
+            <div class="border-t px-8 py-8">
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    Quick Actions
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+
+                    <a href="{% url 'editprofile' %}"
+                       class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-4 text-center font-semibold transition">
+                        Edit Profile
+                    </a>
+                    <a href="{% url 'homepage' %}"
+                       class="bg-gray-700 hover:bg-gray-800 text-white rounded-xl py-4 text-center font-semibold transition">
+                        Home
+                    </a>
+
+                    <a href="{% url 'logout' %}"
+                       class="bg-red-600 hover:bg-red-700 text-white rounded-xl py-4 text-center font-semibold transition">
+                        Sign Out
+                    </a>
+
+                </div>
+
             </div>
-
-            <div class="bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition p-6">
-                <h3 class="text-sm uppercase tracking-wide text-indigo-600 font-semibold mb-2">
-                    Latitude
-                </h3>
-                <p class="text-lg text-gray-800">
-                    {{ form_data.latitude|default:"Not Available" }}
-                </p>
-            </div>
-
-            <div class="bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition p-6">
-                <h3 class="text-sm uppercase tracking-wide text-indigo-600 font-semibold mb-2">
-                    Longitude
-                </h3>
-                <p class="text-lg text-gray-800">
-                    {{ form_data.longitude|default:"Not Available" }}
-                </p>
-            </div>
-
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pb-10">
-
-            <a href="{% url 'editprofile' %}"
-               class="px-8 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition duration-300 shadow-md hover:shadow-lg">
-                Edit Profile
-            </a>
-
-            <a href="{% url 'homepage' %}"
-               class="px-8 py-3 rounded-xl bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300 transition duration-300 shadow-md hover:shadow-lg">
-                Back to Home
-            </a>
 
         </div>
 
@@ -101,4 +110,4 @@
 
 </div>
 
-{% endblock %}
+{% endblock base %}

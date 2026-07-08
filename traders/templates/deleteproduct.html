@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block base %}
+
+<div class="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
+
+    <div class="max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+
+        <!-- Header -->
+        <div class="bg-red-600 px-8 py-6">
+            <h1 class="text-3xl font-bold text-white">
+                Delete Product
+            </h1>
+            <p class="text-red-100 mt-1">
+                This action cannot be undone.
+            </p>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+
+            {% if product.images.first %}
+            <div class="flex justify-center mb-6">
+                <img src="{{ product.images.first.image.url }}"
+                     alt="{{ product.title }}"
+                     class="w-48 h-48 object-cover rounded-xl shadow-md border">
+            </div>
+            {% endif %}
+
+            <h2 class="text-2xl font-bold text-center text-gray-800">
+                {{ product.title }}
+            </h2>
+
+            <p class="text-center text-gray-500 mt-2">
+                {{ product.category }}
+            </p>
+
+            <div class="mt-8 bg-red-50 border border-red-200 rounded-xl p-5">
+
+                <div class="flex items-start">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="w-7 h-7 text-red-600 mr-3 mt-1"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>
+
+                    </svg>
+
+                    <div>
+                        <h3 class="font-semibold text-red-700">
+                            Warning
+                        </h3>
+
+                        <p class="text-gray-700 mt-1">
+                            Deleting this product will permanently remove it,
+                            along with all associated images and auction data.
+                            This action cannot be reversed.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <form method="POST" class="mt-8">
+
+                {% csrf_token %}
+
+                <div class="flex justify-end gap-4">
+
+                    <a href="{% url 'productdetails' product.pk %}"
+                       class="px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium transition">
+
+                        Cancel
+
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="px-6 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition">
+
+                        Delete Product
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock base %}

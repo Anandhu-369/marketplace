@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block base %}
+
+<div class="max-w-7xl mx-auto px-4 py-10">
+
+    <!-- Header -->
+    <div class="mb-10">
+
+        <h1 class="text-4xl font-bold text-gray-800">
+            My Orders
+        </h1>
+
+        <p class="text-gray-500 mt-2">
+            Products you have successfully purchased.
+        </p>
+
+    </div>
+
+    {% if orders %}
+
+    <div class="space-y-8">
+
+        {% for order in orders %}
+
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+            <!-- Order Header -->
+            <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center">
+
+                <div>
+
+                    <h2 class="text-white text-xl font-bold">
+                        Order #{{ order.id }}
+                    </h2>
+
+                    <p class="text-indigo-100 text-sm">
+                        {{ order.created_at|date:"d M Y, h:i A" }}
+                    </p>
+
+                </div>
+
+                {% if order.is_paid %}
+
+                    <span class="bg-green-500 text-white px-4 py-2 rounded-full text-sm">
+                        Paid
+                    </span>
+
+                {% else %}
+
+                    <span class="bg-yellow-500 text-white px-4 py-2 rounded-full text-sm">
+                        Pending
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            <!-- Products -->
+            <div class="p-6">
+
+                <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                    {% for product in order.product_object.all %}
+
+                    <div class="border rounded-xl overflow-hidden hover:shadow-lg transition">
+
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}"
+                                 class="w-full h-52 object-cover">
+                        {% else %}
+                            <div class="h-52 bg-gray-200 flex items-center justify-center">
+                                No Image
+                            </div>
+                        {% endif %}
+
+                        <div class="p-5">
+
+                            <div class="flex justify-between items-center">
+
+                                <h3 class="text-lg font-bold">
+                                    {{ product.title }}
+                                </h3>
+
+                                <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full">
+                                    Purchased
+                                </span>
+
+                            </div>
+
+                            <p class="text-gray-500 mt-2 line-clamp-2">
+                                {{ product.description }}
+                            </p>
+
+                            <div class="mt-5 space-y-2 text-sm">
+
+                                <div class="flex justify-between">
+                                    <span>Seller</span>
+                                    <span>{{ product.seller.username }}</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span>Category</span>
+                                    <span>{{ product.category }}</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span>Type</span>
+                                    <span>{{ product.product_type }}</span>
+                                </div>
+
+                                <div class="flex justify-between font-semibold">
+
+                                    <span>Price</span>
+
+                                    <span class="text-indigo-600">
+
+                                        {% if product.product_type == "Auction" %}
+                                            ₹{{ product.current_bid|default:product.starting_bid }}
+                                        {% else %}
+                                            ₹{{ product.price }}
+                                        {% endif %}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <a href="{% url 'productdetails' product.pk %}"
+                               class="block mt-6 bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 rounded-lg">
+
+                                View Product
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="border-t mt-8 pt-5 flex justify-between items-center">
+
+                    <span class="font-semibold text-lg">
+                        Total Paid
+                    </span>
+
+                    <span class="text-2xl font-bold text-green-600">
+                        ₹{{ order.total }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="bg-white rounded-2xl shadow-lg p-20 text-center">
+
+        <h2 class="text-3xl font-bold text-gray-700">
+            No Orders Found
+        </h2>
+
+        <p class="text-gray-500 mt-3">
+            You haven't purchased any products yet.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock base %}
