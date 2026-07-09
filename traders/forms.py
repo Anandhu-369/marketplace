@@ -17,15 +17,7 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             "product_type","title","description","price","starting_bid","category","is_negotiatable","auction_start", "auction_end",]
-        widgets = {
-
-            "auction_start": forms.DateTimeInput(
-                attrs={
-                    "type": "datetime-local",
-                    "class": "w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500",
-                },
-                format="%Y-%m-%dT%H:%M",
-            ),
+        widgets = {"auction_start": forms.DateTimeInput(attrs={"type": "datetime-local","class": "w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-indigo-500",},format="%Y-%m-%dT%H:%M",),
 
             "auction_end": forms.DateTimeInput(
                 attrs={
@@ -51,3 +43,27 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ["phone","address","image","latitude","longitude",]
+        widgets = {
+            "phone": forms.TextInput(attrs={
+                "class": "w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500",
+                "placeholder": "Enter phone number",
+            }),
+            "address": forms.Textarea(attrs={
+                "class": "w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500",
+                "rows": 3,
+                "placeholder": "Enter address",
+            }),
+            "image": forms.ClearableFileInput(attrs={
+                "class": "w-full border rounded-lg p-2",
+            }),
+            "latitude": forms.NumberInput(attrs={
+                "class": "w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500",
+                "placeholder": "Latitude",
+                "step": "any",
+            }),
+            "longitude": forms.NumberInput(attrs={
+                "class": "w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500",
+                "placeholder": "Longitude",
+                "step": "any",
+            }),
+        }
